@@ -1,29 +1,41 @@
 const { ObjectId } = require("mongodb");
 const { getDB } = require("../config/db");
+const { ERROR } = require("../constant");
 
-exports.getAllBlogs = async () => {
+const getAllBlogs = async () => {
   const db = await getDB();
-  return db.collection("blogs").find().toArray();
+  return await db.collection("blogs").find().toArray();
 };
 
-exports.getBlogById = async (blogId) => {
+const getBlogById = async (blogId) => {
+  if (!blogId || typeof blogId !== "string" || !ObjectId.isValid(blogId)) {
+    return res.status(400).json({ error: ERROR.INVALID_ID });
+  }
   const db = await getDB();
-  return db.collection("blogs").findOne({ _id: new ObjectId(blogId) });
+  return await db.collection("blogs").findOne({ _id: new ObjectId(blogId) });
 };
 
-exports.createBlog = async (blogData) => {
+const postBlog = async (data) => {
   const db = await getDB();
-  return db.collection("blogs").insertOne(blogData);
+  return await db.collection("blogs").insertOne(data);
 };
 
-exports.updateBlog = async (blogId, updateData) => {
+const updateBlog = async (blogId, data) => {
+  if (!blogId || typeof blogId !== "string" || !ObjectId.isValid(blogId)) {
+    return res.status(400).json({ error: ERROR.INVALID_ID });
+  }
   const db = await getDB();
-  return db
+  return await db
     .collection("blogs")
-    .updateOne({ _id: new ObjectId(blogId) }, { $set: updateData });
+    .updateOne({ _id: new ObjectId(blogId) }, { $set: data });
 };
 
-exports.deleteBlog = async (blogId) => {
+const deleteBlog = async (blogId) => {
+  if (!blogId || typeof blogId !== "string" || !ObjectId.isValid(blogId)) {
+    return res.status(400).json({ error: ERROR.INVALID_ID });
+  }
   const db = await getDB();
-  return db.collection("blogs").deleteOne({ _id: new ObjectId(blogId) });
+  return await db.collection("blogs").deleteOne({ _id: new ObjectId(blogId) });
 };
+
+module.exports = { getAllBlogs, getBlogById, postBlog, deleteBlog, updateBlog };

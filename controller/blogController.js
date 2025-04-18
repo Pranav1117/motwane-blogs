@@ -1,14 +1,14 @@
 const { ObjectId } = require("mongodb");
-const { getDB } = require("../config/db");
+const blogService = require("../services/blogService");
+const { ERROR } = require("../constant");
 
 const getAllBlogs = async (req, res) => {
   try {
-    const db = await getDB();
-    const blogs = await db.collection("blogs").find().toArray();
-    res.status(200).json(blogs);
+    const blogs = await blogService.getAllBlogs();
+    res.status(200).json({ result: blogs });
   } catch (error) {
-    console.error("Error fetching blogs:", error);
-    res.status(500).json({ error: "Failed to fetch blogs" });
+    console.log(error);
+    res.status(500).json({ error });
   }
 };
 
@@ -16,66 +16,48 @@ const getBlogById = async (req, res) => {
   const { blogId } = req.params;
 
   try {
-    const db = await getDB();
-    const a = await db
-      .collection("blogs")
-      .findOne({ _id: new ObjectId(blogId) });
-    return res.send(a);
+    const blog = await blogService.getBlogById(blogId);
+    console.log(blog);
+    return res.status(200).json({ result: blog });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ error: ERROR.GET_BLOG_FAILED });
   }
 };
 
 const postBlog = async (req, res) => {
   try {
     const { title, content, author } = req.body;
-    const db = await getDB();
-    const newBlog = {
-      title,
-      content,
-      author,
-    };
 
-    const r = await db.collection("blogs").insertOne(newBlog);
-    res.send(r);
+    const result = await blogService.postBlog({ title, content, author });
+    res.status(200).json({ result });
   } catch (error) {
-    console.log("first");
+    res.status(500).json({ error: ERROR.POST_BLOG_FAILED });
   }
 };
 
 const updateBlog = async (req, res) => {
   const { blogId } = req.params;
-
   const { title, content, author } = req.body;
 
-  if (!blogId || typeof blogId !== "string" || !ObjectId.isValid(blogId)) {
-    return res.status(400).json({ error: "Invalid blog ID" });
-  }
-
   try {
-    const db = await getDB();
-
     const updateData = {};
     if (title) updateData.title = title;
     if (content) updateData.content = content;
     if (author) updateData.author = author;
 
     if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({ error: "No update data provided" });
+      return res.status(400).json({ error: ERROR.NO_DATA_PROVIDED });
     }
 
-    const result = await db
-      .collection("blogs")
-      .updateOne({ _id: new ObjectId(blogId) }, { $set: updateData });
+    const result = await blogService.updateBlog(blogId, updateData);
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ error: "Blog not found" });
+      return res.status(404).json({ error: ERROR.NOT_FOUND_BLOG });
     }
 
-    res.status(200).json({ message: "Blog updated successfully", result });
+    res.status(200).json({ result });
   } catch (error) {
-    console.error("Error updating blog:", error);
-    res.status(500).json({ error: "Failed to update blog" });
+    res.status(500).json({ error: ERROR.UPDATE_BLOG_FAILED });
   }
 };
 
@@ -83,18 +65,14 @@ const deleteBlog = async (req, res) => {
   const { blogId } = req.params;
 
   if (!blogId || typeof blogId !== "string" || !ObjectId.isValid(blogId)) {
-    return res.status(400).json({ error: "Invalid blog ID" });
+    return res.status(400).json({ error: ERROR.INVALID_ID });
   }
 
   try {
-    const db = await getDB();
-    const a = await db
-      .collection("blogs")
-      .deleteOne({ _id: new ObjectId(blogId) });
-    console.log(a);
-    return res.send(a);
+    const result = await blogService.deleteBlog(blogId);
+    return res.status(200).json({ result });
   } catch (error) {
-    console.log("first");
+    res.status(500).json({ error: ERROR.DELETE_BLOG_FAILED });
   }
 };
 
