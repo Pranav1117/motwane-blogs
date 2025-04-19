@@ -1,13 +1,13 @@
 const { ObjectId } = require("mongodb");
 const blogService = require("../services/blogService");
 const { ERROR } = require("../constant");
+const { getDB } = require("../config/db");
 
 const getAllBlogs = async (req, res) => {
   try {
     const blogs = await blogService.getAllBlogs();
     res.status(200).json({ result: blogs });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error });
   }
 };
@@ -17,7 +17,6 @@ const getBlogById = async (req, res) => {
 
   try {
     const blog = await blogService.getBlogById(blogId);
-    console.log(blog);
     return res.status(200).json({ result: blog });
   } catch (error) {
     res.status(500).json({ error: ERROR.GET_BLOG_FAILED });
@@ -76,4 +75,45 @@ const deleteBlog = async (req, res) => {
   }
 };
 
-module.exports = { getAllBlogs, getBlogById, postBlog, updateBlog, deleteBlog };
+const postComment = async (req, res, next) => {
+  const { blogId } = await req.params;
+  const { comment } = req.body;
+  try {
+    await blogService.postComment(blogId, comment);
+    res.status(200).json({
+      success: true,
+      message: "Comment added successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: ERROR.INTERNAL_SERVER_ERROR,
+    });
+  }
+};
+
+const deleteComment = async (req, res, next) => {
+  const { blogId, commentId } = req.params;
+
+  try {
+    await blogService.deleteComment(blogId, commentId);
+    res.status(200).json({
+      success: true,
+      message: "Comment deleted successfully",
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+module.exports = {
+  getAllBlogs,
+  getBlogById,
+  postBlog,
+  updateBlog,
+  deleteBlog,
+  postComment,
+  deleteComment,
+};

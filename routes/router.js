@@ -7,8 +7,13 @@ router.get("/getbloginfo/:blogId", blogController.getBlogById);
 
 router.post("/postblog", blogController.postBlog);
 
+
 router.patch("/updateblog/:blogId", blogController.updateBlog);
 
 router.delete("/deleteblog/:blogId", blogController.deleteBlog);
+
+router.post("/:blogId/comment", blogController.postComment);
+
+router.delete("/:blogId/comment/:commentId", blogController.deleteComment);
 
 module.exports = router;

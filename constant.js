@@ -1,4 +1,5 @@
 const ERROR = {
+  INTERNAL_SERVER_ERROR : "Internal Server Error",
   INVALID_ID: "Invalid blog ID",
   DELETE_BLOG_FAILED: "Failed to delete blog",
   GET_BLOG_FAILED: "Failed to fetch blog",
