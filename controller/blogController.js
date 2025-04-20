@@ -1,7 +1,6 @@
 const { ObjectId } = require("mongodb");
 const blogService = require("../services/blogService");
 const { ERROR } = require("../constant");
-const { getDB } = require("../config/db");
 
 const getAllBlogs = async (req, res) => {
   try {
@@ -75,6 +74,16 @@ const deleteBlog = async (req, res) => {
   }
 };
 
+const getAllComments = async (req, res) => {
+  const { blogId } = await req.params;
+  try {
+    const result = await blogService.getAllComments(blogId);
+    return res.status(200).json({ success: true, result });
+  } catch (error) {
+    res.status(500).json({ error: ERROR.INTERNAL_SERVER_ERROR });
+  }
+};
+
 const postComment = async (req, res, next) => {
   const { blogId } = await req.params;
   const { comment } = req.body;
@@ -116,4 +125,5 @@ module.exports = {
   deleteBlog,
   postComment,
   deleteComment,
+  getAllComments,
 };

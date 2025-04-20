@@ -56,6 +56,13 @@ const addComment = async (blogId, comment) => {
   );
 };
 
+const getAllComments = async (blogId) => {
+  const db = await getDB();
+  return await db
+    .collection("blogs")
+    .findOne({ _id: new ObjectId(blogId) }, "comments");
+};
+
 const deleteComment = async (blogId, commentId) => {
   const db = await getDB();
 
@@ -77,4 +84,5 @@ module.exports = {
   deleteBlog,
   addComment,
   deleteComment,
+  getAllComments,
 };

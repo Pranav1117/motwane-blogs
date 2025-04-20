@@ -1,6 +1,7 @@
 const { ObjectId } = require("mongodb");
 const { ERROR } = require("../constant");
 const blogModel = require("../models/blogModel");
+const { getDB } = require("../config/db");
 
 const getAllBlogs = async () => {
   return await blogModel.getAllBlogs();
@@ -26,6 +27,10 @@ const updateBlog = async (blogId, data) => {
 
 const deleteBlog = async (blogId) => {
   return await blogModel.deleteBlog(blogId);
+};
+
+const getAllComments = async (blogId) => {
+  return await blogModel.getAllComments(blogId);
 };
 
 const postComment = async (blogId, comment) => {
@@ -65,4 +70,5 @@ module.exports = {
   updateBlog,
   postComment,
   deleteComment,
+  getAllComments,
 };
